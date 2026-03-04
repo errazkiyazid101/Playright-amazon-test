@@ -1,0 +1,36 @@
+name: Playwright Automation
+
+on:
+  push:
+    branches: [ main ]   # Run workflow every time main is updated
+  workflow_dispatch:     # Optional: allows manual trigger from GitHub UI
+
+jobs:
+  run-playwright:
+    runs-on: ubuntu-latest   # The VM GitHub will use
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3   # This pulls your code into the VM
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'    # Python version your script needs
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install playwright
+          playwright install chromium    # Installs the browser
+
+      - name: Run Playwright script
+        run: |
+          python browser_test.py
+
+      - name: Upload screenshot (if generated)
+        if: always()   # Upload even if script fails
+        uses: actions/upload-artifact@v3
+        with:
+          name: screenshots
+          path: screenshots/
